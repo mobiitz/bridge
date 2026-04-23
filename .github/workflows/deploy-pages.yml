@@ -19,6 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      BUILD_ENV_BLOB: ${{ secrets.ENV_BLOB != '' && secrets.ENV_BLOB || vars.ENV_BLOB != '' && vars.ENV_BLOB || secrets.ENV != '' && secrets.ENV || vars.ENV }}
       VITE_WALLETCONNECT_PROJECT_ID: ${{ secrets.VITE_WALLETCONNECT_PROJECT_ID != '' && secrets.VITE_WALLETCONNECT_PROJECT_ID || vars.VITE_WALLETCONNECT_PROJECT_ID || 'c642c78cac7906ea598d9f721d1f2bee' }}
       VITE_ETHEREUM_RPC_URL: ${{ secrets.VITE_ETHEREUM_RPC_URL != '' && secrets.VITE_ETHEREUM_RPC_URL || vars.VITE_ETHEREUM_RPC_URL }}
       VITE_ETHEREUM_FALLBACK_RPC_URL: ${{ secrets.VITE_ETHEREUM_FALLBACK_RPC_URL != '' && secrets.VITE_ETHEREUM_FALLBACK_RPC_URL || vars.VITE_ETHEREUM_FALLBACK_RPC_URL }}
@@ -44,6 +45,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Write Vite env file
+        if: ${{ env.BUILD_ENV_BLOB != '' }}
+        run: |
+          printf '%s\n' "$BUILD_ENV_BLOB" > .env.production
 
       - name: Build site
         run: npm run build
