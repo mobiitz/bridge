@@ -1,0 +1,65 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_WALLETCONNECT_PROJECT_ID: ${{ secrets.VITE_WALLETCONNECT_PROJECT_ID != '' && secrets.VITE_WALLETCONNECT_PROJECT_ID || vars.VITE_WALLETCONNECT_PROJECT_ID || 'c642c78cac7906ea598d9f721d1f2bee' }}
+      VITE_ETHEREUM_RPC_URL: ${{ secrets.VITE_ETHEREUM_RPC_URL != '' && secrets.VITE_ETHEREUM_RPC_URL || vars.VITE_ETHEREUM_RPC_URL }}
+      VITE_ETHEREUM_FALLBACK_RPC_URL: ${{ secrets.VITE_ETHEREUM_FALLBACK_RPC_URL != '' && secrets.VITE_ETHEREUM_FALLBACK_RPC_URL || vars.VITE_ETHEREUM_FALLBACK_RPC_URL }}
+      VITE_BASE_RPC_URL: ${{ secrets.VITE_BASE_RPC_URL != '' && secrets.VITE_BASE_RPC_URL || vars.VITE_BASE_RPC_URL }}
+      VITE_BASE_FALLBACK_RPC_URL: ${{ secrets.VITE_BASE_FALLBACK_RPC_URL != '' && secrets.VITE_BASE_FALLBACK_RPC_URL || vars.VITE_BASE_FALLBACK_RPC_URL }}
+      VITE_ETHEREUM_TOKEN_ADDRESS: ${{ secrets.VITE_ETHEREUM_TOKEN_ADDRESS != '' && secrets.VITE_ETHEREUM_TOKEN_ADDRESS || vars.VITE_ETHEREUM_TOKEN_ADDRESS || '0x3898257dd2cd6d2a3b6e3435f73568a725262b9b' }}
+      VITE_BASE_TOKEN_ADDRESS: ${{ secrets.VITE_BASE_TOKEN_ADDRESS != '' && secrets.VITE_BASE_TOKEN_ADDRESS || vars.VITE_BASE_TOKEN_ADDRESS || '0x3898257dd2cd6d2a3b6e3435f73568a725262b9b' }}
+      VITE_RELAYER_URL: ${{ secrets.VITE_RELAYER_URL != '' && secrets.VITE_RELAYER_URL || vars.VITE_RELAYER_URL }}
+      VITE_BRIDGE_OPERATOR_ADDRESS: ${{ secrets.VITE_BRIDGE_OPERATOR_ADDRESS != '' && secrets.VITE_BRIDGE_OPERATOR_ADDRESS || vars.VITE_BRIDGE_OPERATOR_ADDRESS }}
+      VITE_BRIDGE_REQUEST_TTL_SECONDS: ${{ secrets.VITE_BRIDGE_REQUEST_TTL_SECONDS != '' && secrets.VITE_BRIDGE_REQUEST_TTL_SECONDS || vars.VITE_BRIDGE_REQUEST_TTL_SECONDS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
