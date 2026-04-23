@@ -144,20 +144,8 @@ h3 {
   margin: 0;
 }
 
-h1 {
-  font-size: clamp(2.85rem, 6vw, 5rem);
-  max-width: 11ch;
-}
-
 h2 {
   font-size: 1.5rem;
-}
-
-.lead {
-  color: var(--text-secondary);
-  font-size: 1.08rem;
-  margin: 0;
-  max-width: 58ch;
 }
 
 .brand-card {
@@ -187,15 +175,6 @@ h2 {
   height: auto;
   max-width: min(100%, 28rem);
   width: 100%;
-}
-
-.brand-stat span,
-.bridge-meta-card span {
-  color: var(--text-muted);
-  display: block;
-  font-size: 0.7rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
 }
 
 .brand-card__copy {
@@ -261,31 +240,6 @@ h2 {
   box-shadow: 0 0 0.8rem rgba(239, 68, 68, 0.55);
 }
 
-.brand-stats {
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.brand-stat {
-  background: rgba(2, 6, 23, 0.75);
-  border: 1px solid var(--border-soft);
-  border-radius: 1rem;
-  padding: 0.95rem 1rem;
-}
-
-.brand-stat strong {
-  color: var(--text-primary);
-  display: block;
-  font-size: 1.35rem;
-  margin-top: 0.45rem;
-}
-
-.hero-copy {
-  display: grid;
-  gap: 0.4rem;
-}
-
 .wallet-row {
   align-items: center;
   display: flex;
@@ -314,8 +268,7 @@ h2 {
 
 .wallet-details strong,
 .contract-card strong,
-.status-card strong,
-.bridge-meta-card strong {
+.status-card strong {
   font-size: 1rem;
   margin-top: 0.15rem;
 }
@@ -331,55 +284,6 @@ h2 {
   border: 1px solid var(--border-soft);
   border-radius: 1.15rem;
   padding: 1rem;
-}
-
-.panel-heading {
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-}
-
-.bridge-header-card {
-  background: rgba(15, 23, 42, 0.82);
-  border: 1px solid var(--border-soft);
-  border-radius: 1.65rem;
-  display: grid;
-  gap: 1rem;
-  padding: 1.1rem;
-}
-
-.bridge-header-copy {
-  color: var(--text-secondary);
-  line-height: 1.7;
-  margin: 0;
-}
-
-.bridge-meta-grid {
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.bridge-meta-card {
-  background: rgba(2, 6, 23, 0.9);
-  border: 1px solid var(--border-soft);
-  border-radius: 1rem;
-  padding: 0.95rem;
-}
-
-.network-badge {
-  align-items: center;
-  background: rgba(2, 6, 23, 0.95);
-  border: 1px solid;
-  border-radius: 999px;
-  color: var(--text-primary);
-  display: inline-flex;
-  font-size: 0.84rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  min-height: 2.5rem;
-  padding: 0 0.9rem;
 }
 
 .route-toggle {
@@ -471,6 +375,17 @@ h2 {
   border-color: rgba(109, 168, 255, 0.55);
   box-shadow: 0 0 0 2px rgba(109, 168, 255, 0.45);
   outline: none;
+}
+
+.field--mirror .input--mirror {
+  background: rgba(15, 23, 42, 0.94);
+  color: var(--text-accent);
+  cursor: default;
+}
+
+.field--mirror .input--mirror:focus {
+  border-color: #334155;
+  box-shadow: none;
 }
 
 .quick-fill-row {
@@ -705,8 +620,6 @@ h2 {
     max-width: 100%;
   }
 
-  .brand-stats,
-  .bridge-meta-grid,
   .contract-grid,
   .status-grid {
     grid-template-columns: 1fr;
@@ -729,13 +642,8 @@ h2 {
     padding: 1.05rem;
   }
 
-  h1 {
-    font-size: 2.45rem;
-  }
-
   .brand-card,
   .bridge-form,
-  .bridge-header-card,
   .status-panel {
     padding: 1rem;
   }

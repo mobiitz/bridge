@@ -533,23 +533,10 @@ function App() {
                 <strong>{bridgeIndicatorLabel}</strong>
               </div>
               <p>
-                Approve the operator, sign the route, and let the relay execute
-                the source-chain burn plus destination-chain mint.
+                Welcome to the $MBTC Bridge, where we can move our $MBTC
+                tokens from the Ethereum Network, to the Base Network, and vice
+                versa!
               </p>
-            </div>
-            <div className="brand-stats">
-              <div className="brand-stat">
-                <span>Networks</span>
-                <strong>2</strong>
-              </div>
-              <div className="brand-stat">
-                <span>Flow</span>
-                <strong>Approve + Sign</strong>
-              </div>
-              <div className="brand-stat">
-                <span>Token</span>
-                <strong>{sourceTokenSymbol}</strong>
-              </div>
             </div>
           </div>
 
@@ -574,18 +561,6 @@ function App() {
               }
             }}
           />
-
-          <div className="hero-copy">
-            <p className="eyebrow">bridge.mbtc.us</p>
-            <h1>One MBTC ecosystem, two live bridge routes.</h1>
-            <p className="lead">
-              This bridge uses the same MBTC operator model as the token
-              contracts: users approve the bridge wallet on the source chain,
-              sign a request, and the operator handles the burn and mint across
-              Ethereum and Base.
-            </p>
-          </div>
-
           <div className="wallet-row">
             <ConnectButton />
             <div className="wallet-details">
@@ -611,47 +586,6 @@ function App() {
         </section>
 
         <section className="panel bridge-panel">
-          <div className="bridge-header-card">
-            <div className="panel-heading">
-              <div>
-                <p className="eyebrow">Bridge flow</p>
-                <h2>{route.directionLabel}</h2>
-              </div>
-              <span className="network-badge" style={{ borderColor: sourceChain.accent }}>
-                {sourceChain.badge}
-              </span>
-            </div>
-            <p className="bridge-header-copy">
-              Move MBTC from {sourceChain.label} to {destinationChain.label} by
-              approving the bridge operator on the source chain and signing one
-              bridge request for relay execution.
-            </p>
-            <div className="bridge-meta-grid">
-              <div className="bridge-meta-card">
-                <span>Source token</span>
-                <strong>
-                  {sourceTokenAddress ? shortAddress(sourceTokenAddress) : 'Not configured'}
-                </strong>
-              </div>
-              <div className="bridge-meta-card">
-                <span>Destination token</span>
-                <strong>
-                  {destinationTokenAddress
-                    ? shortAddress(destinationTokenAddress)
-                    : 'Not configured'}
-                </strong>
-              </div>
-              <div className="bridge-meta-card">
-                <span>Operator</span>
-                <strong>
-                  {bridgeOperatorAddress
-                    ? shortAddress(bridgeOperatorAddress)
-                    : 'Not configured'}
-                </strong>
-              </div>
-            </div>
-          </div>
-
           <div className="route-toggle">
             <button
               className={direction === 'eth-to-base' ? 'route-toggle__button route-toggle__button--active' : 'route-toggle__button'}
@@ -678,7 +612,7 @@ function App() {
           <form className="bridge-form" onSubmit={handleSubmit}>
             <label className="field">
               <div className="field__header">
-                <span>Amount</span>
+                <span>Amount to bridge</span>
                 <small>
                   Balance:{' '}
                   <strong>{balanceLabel}</strong>
@@ -739,6 +673,18 @@ function App() {
                   MAX
                 </button>
               </div>
+            </label>
+
+            <label className="field field--mirror">
+              <span>Destination amount</span>
+              <input
+                className="input--mirror"
+                placeholder="0.00"
+                readOnly
+                tabIndex={-1}
+                type="text"
+                value={amount}
+              />
             </label>
 
             <label className="field">
