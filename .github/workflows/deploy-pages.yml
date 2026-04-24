@@ -19,7 +19,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      BUILD_ENV_BLOB: ${{ secrets.ENV_BLOB != '' && secrets.ENV_BLOB || vars.ENV_BLOB != '' && vars.ENV_BLOB || secrets.ENV != '' && secrets.ENV || vars.ENV }}
       VITE_WALLETCONNECT_PROJECT_ID: ${{ secrets.VITE_WALLETCONNECT_PROJECT_ID != '' && secrets.VITE_WALLETCONNECT_PROJECT_ID || vars.VITE_WALLETCONNECT_PROJECT_ID || 'c642c78cac7906ea598d9f721d1f2bee' }}
       VITE_ETHEREUM_RPC_URL: ${{ secrets.VITE_ETHEREUM_RPC_URL != '' && secrets.VITE_ETHEREUM_RPC_URL || vars.VITE_ETHEREUM_RPC_URL }}
       VITE_ETHEREUM_FALLBACK_RPC_URL: ${{ secrets.VITE_ETHEREUM_FALLBACK_RPC_URL != '' && secrets.VITE_ETHEREUM_FALLBACK_RPC_URL || vars.VITE_ETHEREUM_FALLBACK_RPC_URL }}
@@ -47,9 +46,75 @@ jobs:
         run: npm ci
 
       - name: Write Vite env file
-        if: ${{ env.BUILD_ENV_BLOB != '' }}
+        env:
+          ENV_SECRET: ${{ secrets.ENV }}
+          ENV_VAR: ${{ vars.ENV }}
+          ENV_BLOB_SECRET: ${{ secrets.ENV_BLOB }}
+          ENV_BLOB_VAR: ${{ vars.ENV_BLOB }}
         run: |
-          printf '%s\n' "$BUILD_ENV_BLOB" > .env.production
+          : > .env.production
+
+          if [ -n "$ENV_SECRET" ]; then
+            printf '%s\n' "$ENV_SECRET" >> .env.production
+          elif [ -n "$ENV_VAR" ]; then
+            printf '%s\n' "$ENV_VAR" >> .env.production
+          elif [ -n "$ENV_BLOB_SECRET" ]; then
+            printf '%s\n' "$ENV_BLOB_SECRET" >> .env.production
+          elif [ -n "$ENV_BLOB_VAR" ]; then
+            printf '%s\n' "$ENV_BLOB_VAR" >> .env.production
+          fi
+
+          cat >> .env.production <<EOF
+          VITE_WALLETCONNECT_PROJECT_ID=${VITE_WALLETCONNECT_PROJECT_ID}
+          VITE_ETHEREUM_RPC_URL=${VITE_ETHEREUM_RPC_URL}
+          VITE_ETHEREUM_FALLBACK_RPC_URL=${VITE_ETHEREUM_FALLBACK_RPC_URL}
+          VITE_BASE_RPC_URL=${VITE_BASE_RPC_URL}
+          VITE_BASE_FALLBACK_RPC_URL=${VITE_BASE_FALLBACK_RPC_URL}
+          VITE_ETHEREUM_TOKEN_ADDRESS=${VITE_ETHEREUM_TOKEN_ADDRESS}
+          VITE_BASE_TOKEN_ADDRESS=${VITE_BASE_TOKEN_ADDRESS}
+          VITE_RELAYER_URL=${VITE_RELAYER_URL}
+          VITE_BRIDGE_OPERATOR_ADDRESS=${VITE_BRIDGE_OPERATOR_ADDRESS}
+          VITE_BRIDGE_REQUEST_TTL_SECONDS=${VITE_BRIDGE_REQUEST_TTL_SECONDS}
+          EOF
+
+      - name: Validate build env
+        run: |
+          node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+
+          const envFile = '.env.production';
+          const parsed = {};
+
+          if (fs.existsSync(envFile)) {
+            for (const line of fs.readFileSync(envFile, 'utf8').split(/\r?\n/)) {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed.startsWith('#')) continue;
+              const separatorIndex = trimmed.indexOf('=');
+              if (separatorIndex === -1) continue;
+              const key = trimmed.slice(0, separatorIndex).trim();
+              const value = trimmed.slice(separatorIndex + 1).trim();
+              parsed[key] = value;
+            }
+          }
+
+          const getValue = (key) => process.env[key] || parsed[key] || '';
+          const requiredKeys = [
+            'VITE_WALLETCONNECT_PROJECT_ID',
+            'VITE_ETHEREUM_TOKEN_ADDRESS',
+            'VITE_BASE_TOKEN_ADDRESS',
+            'VITE_RELAYER_URL',
+            'VITE_BRIDGE_REQUEST_TTL_SECONDS',
+          ];
+
+          const missingKeys = requiredKeys.filter((key) => !getValue(key));
+
+          if (missingKeys.length > 0) {
+            console.error(`Missing required Vite build variables: ${missingKeys.join(', ')}`);
+            process.exit(1);
+          }
+
+          console.log(`Validated Vite build env for: ${requiredKeys.join(', ')}`);
+          EOF
 
       - name: Build site
         run: npm run build
