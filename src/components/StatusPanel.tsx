@@ -18,7 +18,6 @@ type BridgeIntent = {
 type StatusPanelProps = {
   approvalSatisfied: boolean;
   bridgeIntent: BridgeIntent | null;
-  bridgeOperatorAddress?: string;
   relayError: string;
   relayRecord: RelayStatusRecord | null;
   phase: BridgePhase;
@@ -38,7 +37,6 @@ const phaseLabel: Record<BridgePhase, string> = {
 export function StatusPanel({
   approvalSatisfied,
   bridgeIntent,
-  bridgeOperatorAddress,
   relayError,
   relayRecord,
   phase,
@@ -63,10 +61,22 @@ export function StatusPanel({
     relayRecord?.status === 'completed';
   const mintSubmitted =
     relayRecord?.status === 'mint_submitted' || relayRecord?.status === 'completed';
+  const progressTone = hasFailedRecord ? 'failed' : isCompleted ? 'success' : 'live';
 
   if (!bridgeIntent) {
     return null;
   }
+
+  const progressSteps = [
+    { done: approvalSatisfied, label: 'Approval' },
+    { done: burnCompleted, label: `Burn on ${sourceChain?.label ?? 'Source'}` },
+    { done: mintSubmitted, label: `Mint on ${destinationChain?.label ?? 'Destination'}` },
+    { done: isCompleted, label: 'Delivered' },
+  ];
+  const progressPercent = progressSteps.filter((step) => step.done).length * 25;
+  const activeStepIndex = isCompleted
+    ? progressSteps.length - 1
+    : progressSteps.findIndex((step) => !step.done);
 
   return (
     <section className="status-panel">
@@ -84,6 +94,36 @@ export function StatusPanel({
         </span>
       </div>
 
+      <div className="status-progress">
+        <div className="status-progress__header">
+          <span className="status-progress__label">Bridge Progress</span>
+          <strong className={`status-progress__percent status-progress__percent--${progressTone}`}>
+            {progressPercent}%
+          </strong>
+        </div>
+        <div className={`status-progress__track status-progress__track--${progressTone}`}>
+          <div
+            className={`status-progress__fill status-progress__fill--${progressTone}${!hasFailedRecord && !isCompleted ? ' status-progress__fill--animated' : ''}`}
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <div className="status-progress__steps">
+          {progressSteps.map((step, index) => {
+            const isActive = index === activeStepIndex && !step.done && !hasFailedRecord;
+
+            return (
+              <div
+                key={step.label}
+                className={`status-progress__step${step.done ? ' status-progress__step--done' : ''}${isActive ? ' status-progress__step--active' : ''}${hasFailedRecord && !step.done ? ' status-progress__step--failed' : ''}`}
+              >
+                <span className="status-progress__step-index">{index + 1}</span>
+                <span className="status-progress__step-label">{step.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="status-grid">
         <div className="status-card">
           <span className="status-card__label">Amount</span>
@@ -98,21 +138,6 @@ export function StatusPanel({
           <strong>{shortAddress(bridgeIntent.id)}</strong>
         </div>
       </div>
-
-      <ol className="steps">
-        <li className={approvalSatisfied ? 'steps__item steps__item--done' : 'steps__item'}>
-          Approval granted to {bridgeOperatorAddress ? shortAddress(bridgeOperatorAddress) : 'bridge operator'}
-        </li>
-        <li className={burnCompleted ? 'steps__item steps__item--done' : 'steps__item'}>
-          Relay burns on {sourceChain?.label}
-        </li>
-        <li className={mintSubmitted ? 'steps__item steps__item--done' : 'steps__item'}>
-          Relay submits mint on {destinationChain?.label}
-        </li>
-        <li className={isCompleted ? 'steps__item steps__item--done' : 'steps__item'}>
-          Tokens arrive at the destination address
-        </li>
-      </ol>
 
       <div className="tx-links">
         {relayRecord?.burnTxHash && (

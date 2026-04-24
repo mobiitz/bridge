@@ -544,7 +544,6 @@ function App() {
                   sourceAllowance >= BigInt(routeScopedBridgeIntent.amountRaw)),
             )}
             bridgeIntent={routeScopedBridgeIntent}
-            bridgeOperatorAddress={bridgeOperatorAddress}
             phase={routeScopedPhase}
             relayError={relayError}
             relayRecord={routeScopedRelayRecord}
