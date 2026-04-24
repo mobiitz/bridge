@@ -25,7 +25,6 @@ import {
   buildBridgeTypedData,
   chainMeta,
   formatAmount,
-  formatTokenAmount,
   getBridgeOperatorAddress,
   getBridgeRequestId,
   getBridgeRequestTtlSeconds,
@@ -509,11 +508,6 @@ function App() {
     sourceBalanceDecimals !== undefined
       ? `${formatAmount(formatUnits(sourceBalanceValue, sourceBalanceDecimals))} ${sourceTokenSymbol}`
       : '--';
-  const allowanceLabel =
-      sourceBalanceDecimals !== undefined
-      ? formatTokenAmount(sourceAllowance, sourceBalanceDecimals)
-      : '--';
-
   return (
     <div className="app-shell">
       <div className="page-background" />
@@ -697,23 +691,6 @@ function App() {
                 value={recipient}
               />
             </label>
-
-            <div className="form-meta">
-              <span>
-                Allowance: <strong>{allowanceLabel}</strong>
-              </span>
-              <span>
-                Token: <strong>{sourceTokenSymbol}</strong>
-              </span>
-              <span>
-                Operator:{' '}
-                <strong>
-                  {bridgeOperatorAddress
-                    ? shortAddress(bridgeOperatorAddress)
-                    : 'Not configured'}
-                </strong>
-              </span>
-            </div>
 
             {!walletConnectConfigured && (
               <p className="note">
