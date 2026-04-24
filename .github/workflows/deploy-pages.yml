@@ -64,18 +64,24 @@ jobs:
             printf '%s\n' "$ENV_BLOB_VAR" >> .env.production
           fi
 
-          cat >> .env.production <<EOF
-          VITE_WALLETCONNECT_PROJECT_ID=${VITE_WALLETCONNECT_PROJECT_ID}
-          VITE_ETHEREUM_RPC_URL=${VITE_ETHEREUM_RPC_URL}
-          VITE_ETHEREUM_FALLBACK_RPC_URL=${VITE_ETHEREUM_FALLBACK_RPC_URL}
-          VITE_BASE_RPC_URL=${VITE_BASE_RPC_URL}
-          VITE_BASE_FALLBACK_RPC_URL=${VITE_BASE_FALLBACK_RPC_URL}
-          VITE_ETHEREUM_TOKEN_ADDRESS=${VITE_ETHEREUM_TOKEN_ADDRESS}
-          VITE_BASE_TOKEN_ADDRESS=${VITE_BASE_TOKEN_ADDRESS}
-          VITE_RELAYER_URL=${VITE_RELAYER_URL}
-          VITE_BRIDGE_OPERATOR_ADDRESS=${VITE_BRIDGE_OPERATOR_ADDRESS}
-          VITE_BRIDGE_REQUEST_TTL_SECONDS=${VITE_BRIDGE_REQUEST_TTL_SECONDS}
-          EOF
+          append_if_set() {
+            local key="$1"
+            local value="$2"
+            if [ -n "$value" ]; then
+              printf '%s=%s\n' "$key" "$value" >> .env.production
+            fi
+          }
+
+          append_if_set VITE_WALLETCONNECT_PROJECT_ID "${VITE_WALLETCONNECT_PROJECT_ID}"
+          append_if_set VITE_ETHEREUM_RPC_URL "${VITE_ETHEREUM_RPC_URL}"
+          append_if_set VITE_ETHEREUM_FALLBACK_RPC_URL "${VITE_ETHEREUM_FALLBACK_RPC_URL}"
+          append_if_set VITE_BASE_RPC_URL "${VITE_BASE_RPC_URL}"
+          append_if_set VITE_BASE_FALLBACK_RPC_URL "${VITE_BASE_FALLBACK_RPC_URL}"
+          append_if_set VITE_ETHEREUM_TOKEN_ADDRESS "${VITE_ETHEREUM_TOKEN_ADDRESS}"
+          append_if_set VITE_BASE_TOKEN_ADDRESS "${VITE_BASE_TOKEN_ADDRESS}"
+          append_if_set VITE_RELAYER_URL "${VITE_RELAYER_URL}"
+          append_if_set VITE_BRIDGE_OPERATOR_ADDRESS "${VITE_BRIDGE_OPERATOR_ADDRESS}"
+          append_if_set VITE_BRIDGE_REQUEST_TTL_SECONDS "${VITE_BRIDGE_REQUEST_TTL_SECONDS}"
 
       - name: Validate build env
         run: |
